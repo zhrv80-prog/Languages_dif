@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
 #Обработчик командной строки, который считывает из командной строки параметр language
+#Тест должен запускаться с параметром language например командой: pytest --language=es test_items.py
 
 def pytest_addoption(parser):
     parser.addoption('--language', action='store', default=en,
@@ -11,6 +12,15 @@ def pytest_addoption(parser):
 
 #Логика запуска браузера с указанным языком пользователя. Браузер должен объявляться в фикстуре browser и передаваться в тест как параметр.
 
-options = Options()
-options.add_experimental_option('prefs', {'intl.accept_languages': user_language})
-browser = webdriver.Chrome(options=options)
+@pytest.fixture(scope="function")
+def browser():
+    print("\nstart browser for test..")
+    browser = webdriver.Chrome()
+    options = Options()
+    options.add_experimental_option('prefs', {'intl.accept_languages': user_language})
+    browser = webdriver.Chrome(options=options)
+    yield browser
+    print("\nquit browser..")
+    browser.quit()
+
+
